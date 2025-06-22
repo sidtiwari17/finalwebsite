@@ -932,7 +932,6 @@
                 <i class="fab fa-whatsapp text-4xl"></i>
             </div>
         </a>
-        </a>
         <!-- Personal Assistant Widget -->
         <button onclick="toggleSimpleChat()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg transition-transform duration-300 hover:scale-110">
             <i class="fas fa-robot text-2xl"></i>
@@ -940,7 +939,7 @@
     </div>
 
 
-    <!-- Chatbot Iframe Container -->
+  <!-- Chatbot Iframe Container -->
     <div id="chat-container" class="fixed bottom-24 right-6 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 z-40 chat-container chat-hidden overflow-hidden">
         <!-- Close button for chatbot -->
         <button onclick="toggleSimpleChat()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white text-2xl z-50 p-2 rounded-full bg-gray-100 dark:bg-gray-700">
@@ -953,7 +952,6 @@
             frameborder="0"
         ></iframe>
     </div>
-    
     
     <!-- Auth Modal -->
     <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 hidden">
@@ -1790,8 +1788,43 @@
             getFinalResponse();
         }
 
-        function getSystemPromptForTool(tool) {
-            const basePrompt = `You are an expert-level Legal AI advisor with in-depth knowledge of national and international law, regulations, case precedents, and legal reasoning. Your task is to help me answer a legal query with maximum accuracy, relevance, and clarity. When responding to a legal question, follow this detailed structure: 1. **Restate the Query for Legal Clarity** – Paraphrase the legal issue in precise legal terms. 2. **Identify Jurisdiction & Legal Domain**. 3. **Outline Applicable Statutes and Regulations**. 4. **Summarize Key Case Law (if applicable)**. 5. **Present Step-by-Step Legal Reasoning** (Use IRAC where helpful). 6. **Discuss Possible Legal Interpretations**. 7. **State Practical Implications and Risks**. 8. **Suggest Recommended Actions**. 9. **Include Disclaimers**. 10. **Use Clear, Formal Language**.`;
+  let previousQuery = "";
+
+  function detectRequestedFormat(query) {
+    const q = query.toLowerCase();
+    if (q.includes("irac")) return "IRAC";
+  if (q.includes("creac")) return "CREAC";
+  if (q.includes("firc") || q.includes("fact, issue")) return "FIRC";
+  if (q.includes("bullet") || q.includes("points")) return "BULLET";
+  if (q.includes("table")) return "TABLE";
+  if (q.includes("simple") || q.includes("layman")) return "SIMPLIFIED";
+    return null;
+  }
+
+  function getSystemPromptForTool(tool, query = "") {
+    const format = detectRequestedFormat(query);
+
+    if (
+      format &&
+      previousQuery &&
+      !(query.toLowerCase().includes("case") || query.toLowerCase().includes("petition") || query.toLowerCase().includes("notice"))
+    ) {
+      query = previousQuery + " " + query;
+    } else {
+      previousQuery = query;
+    }
+
+    const basePrompt = `You are a highly intelligent, adaptive Legal AI Assistant with over 10 years of simulated professional experience in national and international legal systems. Your expertise spans statutory interpretation, procedural frameworks, advanced legal drafting, and comprehensive case law analysis.
+
+You are entrusted with the task of delivering legally accurate, context-sensitive, and analytically sound responses tailored precisely to the substance and complexity of each legal query. Your reasoning must reflect critical legal thinking, interpretive clarity, and jurisdictional precision.
+
+Each response should demonstrate the judgment and clarity expected of a senior legal associate or advisor. Prioritize logical structure, evidentiary grounding, and clear articulation of legal principles.
+
+Maintain a formal, neutral tone suitable for legal professionals, and where appropriate, conclude with a practical course of action or advisory note.
+
+${format ? `Use the ${format} format (Fact, Issue, Reasoning, Conclusion) for your response.` : ""}
+⚖️ *This is an AI-generated legal insight intended for informational purposes only and does not constitute legal advice.*`;
+
             const toolPrompts = {
                 legalDefinitions: `Focus on providing a detailed definition, citing the specific source (e.g., Section 2(a) of the Indian Contract Act, 1872) and relevant case law.`,
                 caseInsights: `Focus on providing a detailed analysis of the case, covering facts, issues, judgment, and significance.`,
