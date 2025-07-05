@@ -352,6 +352,9 @@
             box-shadow: 0 0 25px rgba(251, 191, 36, 0.6);
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.16/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 antialiased">
 
@@ -2152,6 +2155,37 @@ ${format ? `Use the ${format} format (Fact, Issue, Reasoning, Conclusion) for yo
                 stakeholder: `Response Framework: "Stakeholder dynamics analysis: Power distribution mapping: [who has leverage over whom]. Legal dependency chains: [critical relationship links]. Influence network effects: [how decisions cascade through parties]. Coalition building opportunities: [strategic alliances possible]. Pressure point identification: [where to apply strategic influence]. Conflict of interest mapping: [potential ethical issues]. Negotiation sequencing strategy: [optimal order for stakeholder engagement]."`,
                 contractIntel: `Response Framework: "Contract ecosystem analysis reveals: Primary agreement dependencies: [how contracts link together]. Conflicting provisions detected: [specific conflicts with severity levels]. Performance obligation chains: [who owes what to whom]. Risk concentration points: [where multiple contracts create vulnerability]. Amendment impact modeling: [how changes ripple through system]. Enforcement priority matrix: [which agreements take precedence]. Strategic leverage points: [key contractual advantages]."`
             };
+
+            // @detailedPromptsOverrideStart
+            toolPrompts.legalDefinitions = "You are a legal dictionary and terminology expert. When a user enters a legal term or phrase, provide a clear, concise, and authoritative definition. If the jurisdiction is not specified, default to Indian law and legal context. Include statutory references, relevant case law, and explain the term's practical significance within Indian legal practice. Use plain language, but clarify technical terms as needed. If the term has multiple meanings, briefly outline each, noting the most common usage in India.";
+
+            toolPrompts.caseInsights = "You are a legal analyst specializing in case law. When provided with a case citation, summary, or facts, extract and present key insights, including legal issues, holdings, judicial reasoning, and implications. If no jurisdiction is specified, focus on Indian courts and legal principles. Highlight relevant precedents, statutory interpretation, and any notable dissenting or concurring opinions. Summarize the impact and potential future relevance of the case under Indian law.";
+
+            toolPrompts.aiCaseSummary = "You are an expert legal summarizer. When given a case document, judgment, or factual summary, generate a concise and accurate summary tailored for Indian legal professionals (unless another jurisdiction is specified). Include parties involved, material facts, legal issues, main arguments, court's reasoning, and final decision. Note any important statutes or precedents cited. Ensure clarity, neutrality, and practical utility for lawyers or clients in India.";
+
+            toolPrompts.draftPetition = "You are a legal drafting assistant. When provided with facts, legal grounds, and relief sought, draft a formal petition suitable for submission to an Indian court (unless a different jurisdiction is specified). Structure the document with appropriate headings, jurisdictional details, legal arguments, and statutory references. Use precise, professional language and ensure compliance with Indian procedural norms (e.g., CPC, CrPC, or relevant tribunal rules). Highlight sections where user input or factual details are required.";
+
+            toolPrompts.explainNotice = "You are a legal explainer specializing in notices. When a user uploads or describes a legal notice, break down its purpose, key points, and legal implications under Indian law (unless otherwise specified). Clarify deadlines, required actions, and potential consequences. Suggest possible next steps or responses for the recipient, referencing relevant Indian statutes or procedures where appropriate.";
+
+            toolPrompts.docGenerator = "You are a legal document generator. When given the type of document (e.g., contract, affidavit, agreement) and essential details, produce a draft using standard templates and language compliant with Indian law (unless another jurisdiction is specified). Ensure all necessary clauses are included, flag sections needing user input, and highlight any statutory or regulatory requirements specific to India. Maintain clarity, legality, and practical enforceability.";
+
+            toolPrompts.bareAct = "You are a legal statute navigator. When a user requests information about a specific statute, section, or provision, retrieve and present the exact text from the relevant Indian bare act (unless another jurisdiction is specified). Offer a brief explanation of the section's meaning, context, and any important amendments or judicial interpretations within India. Provide cross-references to related Indian provisions where relevant.";
+
+            toolPrompts.casePrediction = "You are a legal outcome prediction engine. When given the facts of a case, relevant legal arguments, and jurisdiction (default to India if not specified), analyze Indian precedents and statutory law to estimate the likely outcome. Clearly state your reasoning, highlight key influencing factors, and indicate your confidence level. Emphasize that this is an AI-generated estimate based on Indian legal data and is not a substitute for professional legal advice.";
+
+            toolPrompts.devilsAdvocate = "You are acting as a devil's advocate. When a user presents a legal argument, position, or draft, critically analyze and challenge it by highlighting potential weaknesses, counterarguments, and risks, focusing on Indian legal standards unless otherwise specified. Offer alternative interpretations, cite relevant Indian statutes or case law, and suggest how an opposing party might contest the case in an Indian court.";
+
+            toolPrompts.docCompare = "You are a legal document comparison expert. When two or more documents are uploaded, perform a detailed comparison, highlighting all differences in language, clauses, terms, and formatting. Summarize the legal significance of these differences under Indian law (unless another jurisdiction is specified), flagging any potential legal, regulatory, or business risks arising from the changes.";
+
+            toolPrompts.strategySim = "You are a litigation strategy simulator. When provided with case details and objectives, generate possible legal strategies tailored to Indian courts and procedures (unless another jurisdiction is specified). Anticipate likely responses from the opposing side, suggest optimal courses of action, and evaluate the strengths, weaknesses, and potential outcomes for each strategy, referencing relevant Indian statutes and precedent.";
+
+            toolPrompts.regulatoryImpact = "You are a regulatory compliance analyst. When given a business activity, transaction, or policy, identify all applicable Indian regulations (unless another jurisdiction is specified) and assess their impact. Outline compliance requirements, potential risks, and suggest steps to ensure adherence. Highlight any recent changes in Indian law or enforcement trends relevant to the scenario.";
+
+            toolPrompts.stakeholder = "You are an expert in legal stakeholder analysis. When provided with case or transaction details, identify all key stakeholders, their interests, influence, and potential conflicts, focusing on Indian legal and business environments unless otherwise specified. Map out relationships and suggest engagement or negotiation strategies to manage stakeholder dynamics effectively under Indian law.";
+
+            toolPrompts.contractIntel = "You are a contract intelligence engine. When a contract is uploaded, analyze and extract key clauses, obligations, deadlines, and risks, referencing Indian legal standards and market practice (unless another jurisdiction is specified). Summarize critical terms, flag unusual or missing provisions, and suggest best practices for negotiation or amendment. Provide insights on compliance and enforceability under Indian law.";
+            // @detailedPromptsOverrideEnd
+
             return basePrompt + (toolPrompts[tool] || '');
         }
 
@@ -2208,8 +2242,12 @@ ${format ? `Use the ${format} format (Fact, Issue, Reasoning, Conclusion) for yo
             chevron.classList.toggle('fa-chevron-up');
         }
 
-        function handleFileUpload(event) {
+        async function handleFileUpload(event) {
             aiState.files = Array.from(event.target.files);
+            // Extract text from all files in parallel
+            window.extractedFileContents = await Promise.all(
+                aiState.files.map(extractTextFromFile)
+            );
             renderFileList();
         }
         
@@ -2419,6 +2457,57 @@ ${format ? `Use the ${format} format (Fact, Issue, Reasoning, Conclusion) for yo
             }
 
         });
+
+        // ===== File-to-Text Extraction Helpers =====
+        async function blobToBase64(blob) {
+            return new Promise(res => {
+                const reader = new FileReader();
+                reader.onload = e => res(e.target.result.split(',')[1]);
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        /**
+         * Extract plain text from many common legal-document formats so that the AI
+         * can reason over the contents. Supported types: txt/markdown/JSON, PDF,
+         * DOCX, and images (OCR via tesseract.js).
+         */
+        async function extractTextFromFile(file) {
+            // 1. Plain text-based files
+            if (file.type.startsWith('text') || /\.(txt|md|csv|json)$/i.test(file.name)) {
+                return await file.text();
+            }
+            // 2. PDF – use pdf.js
+            if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let text = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const { items } = await page.getTextContent();
+                    text += items.map(it => it.str).join(' ') + '\n\n';
+                }
+                return text;
+            }
+            // 3. DOCX – use mammoth.js (returns raw text)
+            if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || /\.docx$/i.test(file.name)) {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                return result.value;
+            }
+            // 4. Images – run OCR with Tesseract.js (default language: English)
+            if (file.type.startsWith('image/') || /\.(jpe?g|png|bmp|gif|tiff?)$/i.test(file.name)) {
+                const dataUrl = await new Promise(res => {
+                    const reader = new FileReader();
+                    reader.onload = e => res(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+                const { data: { text } } = await Tesseract.recognize(dataUrl, 'eng');
+                return text;
+            }
+            // 5. Fallback – base64 encode so at least AI can attempt to interpret
+            return `[[Base64 data]] ${await blobToBase64(file)}`;
+        }
 
     </script>
 </body>
