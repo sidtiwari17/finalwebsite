@@ -619,6 +619,40 @@
                 </div>
             </section>
 
+            <!-- How to Use the AI Legal Assistant -->
+            <section class="py-20 bg-white dark:bg-gray-900 px-4 sm:px-6 lg:px-8 animated-section">
+                <div class="max-w-5xl mx-auto text-center">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6" data-lang-key="howToUseTitle">How to Use the AI Legal Assistant</h2>
+                    <div class="text-left max-w-3xl mx-auto space-y-6">
+                        <div class="flex items-start space-x-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg">1</div>
+                            <p class="text-gray-700 dark:text-gray-300" data-lang-key="howToUseStep1">Select the tool you want to use from the menu — or simply type your query into the input box.</p>
+                        </div>
+                        <div class="flex items-start space-x-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg">2</div>
+                            <p class="text-gray-700 dark:text-gray-300" data-lang-key="howToUseStep2">For more complex queries, choose the appropriate mode such as Reasoning Mode for deeper legal insight.</p>
+                        </div>
+                        <div class="flex items-start space-x-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg">3</div>
+                            <p class="text-gray-700 dark:text-gray-300" data-lang-key="howToUseStep3">(Optional) Use the Prompt Optimizer to refine and improve your query for better results.</p>
+                        </div>
+                        <div class="flex items-start space-x-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg">4</div>
+                            <p class="text-gray-700 dark:text-gray-300" data-lang-key="howToUseStep4">Upload any relevant documents to provide context to your query (if available).</p>
+                        </div>
+                         <div class="flex items-start space-x-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg">5</div>
+                            <p class="text-gray-700 dark:text-gray-300" data-lang-key="howToUseStep5">Click Submit and let the AI Legal Assistant work its magic.</p>
+                        </div>
+                    </div>
+                    <div class="mt-10">
+                        <a href="#" onclick="showAiAssistantPage(event)" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1" data-lang-key="exploreToolsBtn">
+                           👉 TRY AI FREE LEGAL ASSISTANT
+                        </a>
+                    </div>
+                </div>
+            </section>
+
              <!-- Submit Query Section -->
             <section class="py-20 bg-gray-100 dark:bg-gray-800/50 px-4 sm:px-6 lg:px-8 animated-section">
                 <div class="max-w-3xl mx-auto text-center">
@@ -1644,10 +1678,11 @@
             localStorage.setItem('language', lang);
             document.documentElement.lang = lang;
 
-            // Translate general UI elements
+            // Translate all general UI elements
             document.querySelectorAll('[data-lang-key]').forEach(el => {
                 const key = el.getAttribute('data-lang-key');
                 if (translations[lang] && translations[lang][key]) {
+                     // Use innerHTML for keys that may contain HTML tags, otherwise use innerText
                     if (['faq1Answer', 'faq2Answer', 'faq3Answer', 'faq4Answer', 'faq5Answer', 'teamMemberBio2'].includes(key)) {
                         el.innerHTML = translations[lang][key];
                     } else {
@@ -1655,19 +1690,19 @@
                     }
                 }
             });
-
-            // Translate blog listing page
+            
+            // Translate blog listing page titles and descriptions
             const blogGrid = document.getElementById('blog-posts-grid');
             if(blogGrid) {
                 blogPosts.forEach(post => {
                     const titleEl = document.querySelector(`#blog-card-${post.id} [data-lang-key="blog${post.id}_title"]`);
                     const descEl = document.querySelector(`#blog-card-${post.id} [data-lang-key="blog${post.id}_desc"]`);
-                    if(titleEl) titleEl.innerText = translations[lang][`blog${post.id}_title`];
-                    if(descEl) descEl.innerText = translations[lang][`blog${post.id}_desc`];
+                    if(titleEl && translations[lang][`blog${post.id}_title`]) titleEl.innerText = translations[lang][`blog${post.id}_title`];
+                    if(descEl && translations[lang][`blog${post.id}_desc`]) descEl.innerText = translations[lang][`blog${post.id}_desc`];
                 });
             }
 
-            // Translate the currently visible blog post page
+            // Translate the currently visible full blog post page
             const visiblePost = document.querySelector('.blog-post-page:not(.hidden)');
             if(visiblePost) {
                 const postId = visiblePost.id.split('-')[2];
@@ -1679,21 +1714,24 @@
                     });
                 }
             }
-
-
-            // Update active language button
+            
+            // Update active language button style
             document.querySelectorAll('.lang-btn').forEach(btn => {
                  btn.classList.toggle('active', btn.dataset.lang === lang);
             });
             
-            // Update placeholder text
+            // Update placeholder text for the main query input
             const queryInput = document.getElementById('ai-query-input');
-            if(queryInput) {
-                queryInput.placeholder = getCurrentTranslation('aiQueryPlaceholder');
+            if (queryInput) {
+                const placeholderKey = 'aiQueryPlaceholder';
+                if (translations[lang] && translations[lang][placeholderKey]) {
+                    queryInput.placeholder = translations[lang][placeholderKey];
+                }
             }
         }
         
-        function getCurrentTranslation(key) { return translations[currentLanguage][key] || key; }
+        // This function is a helper to get a translation string safely
+        function getCurrentTranslation(key) { return translations[currentLanguage] ? (translations[currentLanguage][key] || key) : key; }
         
         // --- Page Navigation & Modals ---
         window.showPage = function(pageId, event) {
@@ -2072,7 +2110,14 @@
             messageDiv.innerHTML = messageContent;
             chatArea.appendChild(messageDiv);
             messageDiv.scrollIntoView({ behavior: "smooth", block: "end" });
-            setLanguage(currentLanguage); // re-apply language for new buttons
+            
+            // Translate the dynamically added buttons inside the new message
+            messageDiv.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                 if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                    el.innerText = translations[currentLanguage][key];
+                }
+            });
         }
 
         window.copyMessageContent = function(elementId) {
@@ -2415,9 +2460,10 @@ ${format ? `Use the ${format} format (Fact, Issue, Reasoning, Conclusion) for yo
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                 const lang = btn.dataset.lang;
-                setLanguage(lang);
+                setLanguage(lang); // This function now handles ALL translations
                 });
             });
+            // On page load, set the language from localStorage or default to 'en'
             const lang = localStorage.getItem('language') || 'en';
             setLanguage(lang);
 
