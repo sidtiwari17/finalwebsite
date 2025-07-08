@@ -1609,6 +1609,8 @@
         window.generateAiResponse = async function(followUpQuery = null) {
             const queryInput = document.getElementById('ai-query-input');
             const userQuery = followUpQuery || queryInput.value.trim();
+            // Ensure the backend receives the actual query
+            aiState.query = userQuery;
             if (!userQuery && !aiState.files.length) {
                 showCustomAlert('Please enter a query or upload a file.');
                 return;
