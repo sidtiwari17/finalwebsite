@@ -1670,40 +1670,28 @@
 
         // Call Gemini 2.5 Flash API for all tasks (reasoning and non-reasoning)
         async function callGemini25ProAPI(query, enableReasoning = false) {
-            const model = 'gemini-2.5-flash';
-            const systemPrompt = enableReasoning 
-                ? 'Think analytically about the query like a seasoned legal professional such as Ram Jethmalani, Kapil Sibal, or Harish Salve. Critically analyze the query, use deep legal acumen, and provide logical, well-reasoned answers. Apply advanced legal reasoning, cite relevant precedents where appropriate, and ensure your response reflects the highest standards of legal professionalism.'
-                : 'You are a highly intelligent, adaptive Legal AI Assistant with over 10 years of simulated professional experience in national and international legal systems. Your expertise spans statutory interpretation, procedural frameworks, advanced legal drafting, and comprehensive case law analysis.\n\nYou are entrusted with the task of delivering legally accurate, context-sensitive, and analytically sound responses tailored precisely to the substance and complexity of each legal query. Your reasoning must reflect critical legal thinking, interpretive clarity, and jurisdictional precision.\n\nEach response should demonstrate the judgment and clarity expected of a senior legal associate or advisor. Prioritize logical structure, evidentiary grounding, and clear articulation of legal principles.\n\nMaintain a formal, neutral tone suitable for legal professionals, and where appropriate, conclude with a practical course of action or advisory note.';
-            const payload = {
-                contents: [
-                    { role: 'user', parts: [{ text: systemPrompt + '\n\nQuery: ' + query }] }
-                ],
-                generationConfig: {
-                    temperature: enableReasoning ? 0.3 : 0.1,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: enableReasoning ? 8192 : 4096,
-                }
-            };
+            // Only send the user's query and tool name to the backend
             try {
                 const response = await fetch("https://gemini-backend-612z.onrender.com/api/generate", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ prompt: systemPrompt + '\n\nQuery: ' + query })
+                    body: JSON.stringify({ prompt: query, tool: aiState.tool, reasoning: enableReasoning })
                 });
                 if (!response.ok) {
                     throw new Error(`API Error: ${response.status}`);
                 }
                 const data = await response.json();
-                if (data.candidates && data.candidates.length > 0) {
+                if (data.answer) {
+                    return data.answer;
+                } else if (data.candidates && data.candidates.length > 0) {
                     return data.candidates[0].content.parts[0].text;
                 } else {
-                    throw new Error('No response from Gemini backend');
+                    throw new Error('No response from backend');
                 }
             } catch (error) {
-                console.error('Gemini backend error:', error);
+                console.error('Backend error:', error);
                 throw error;
             }
         }
@@ -1769,31 +1757,24 @@
         }
         
         async function getFinalResponse(loadingIndicator) {
-            const systemPrompt = getSystemPromptForTool(aiState.tool);
-            let fileInfo = aiState.files.length > 0 ? `The user has uploaded the following files: ${aiState.files.map(f => f.name).join(', ')}. Please consider their contents.` : '';
-            const userQuery = `Query: "${aiState.query}". ${fileInfo} Provide a response in ${aiState.mode} mode.`;
-            const payload = { contents: messages };
+            // Only send the user's query and tool name to the backend
             try {
                 const response = await fetch("https://gemini-backend-612z.onrender.com/api/generate", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: JSON.stringify(payload) })
+                    body: JSON.stringify({ prompt: aiState.query, tool: aiState.tool })
                 });
                 if (!response.ok) throw new Error(`API Error: ${response.status}`);
                 const result = await response.json();
                 if (loadingIndicator) loadingIndicator.remove();
-                if (result.candidates && result.candidates.length > 0) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    const assistantMessage = {
-                        role: "model",
-                        parts: [{ text: text }]
-                    };
-                    messages.push(assistantMessage);
-                    appendMessage(text, 'model');
-                    generateFollowUpQuestions(userQuery, text);
-                } else {
-                    throw new Error(result.promptFeedback ? `Request blocked: ${result.promptFeedback.blockReason}` : 'No content received.');
-                }
+                let text = result.answer || (result.candidates && result.candidates[0].content.parts[0].text) || 'No answer.';
+                const assistantMessage = {
+                    role: "model",
+                    parts: [{ text: text }]
+                };
+                messages.push(assistantMessage);
+                appendMessage(text, 'model');
+                generateFollowUpQuestions(aiState.query, text);
             } catch (error) {
                 console.error("API call failed:", error);
                 if (loadingIndicator) loadingIndicator.remove();
@@ -1804,16 +1785,17 @@
         async function generateFollowUpQuestions(originalQuery, responseText) {
             const followUpContainer = document.getElementById('follow-up-questions');
             followUpContainer.innerHTML = '';
-            const metaPrompt = `Based on the user's query "${originalQuery}" and the AI response "${responseText}", generate three concise, relevant follow-up questions the user might have. Return the questions as a JSON array of strings, like ["question 1", "question 2", "question 3"].`;
             try {
                 const response = await fetch("https://gemini-backend-612z.onrender.com/api/generate", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: metaPrompt })
+                    body: JSON.stringify({ prompt: `Based on the user's query "${originalQuery}" and the AI response "${responseText}", generate three concise, relevant follow-up questions the user might have. Return the questions as a JSON array of strings, like [\"question 1\", \"question 2\", \"question 3\"].`, tool: 'followup' })
                 });
                 const result = await response.json();
                 let questions = [];
-                if (result.candidates && result.candidates.length > 0) {
+                if (result.answer) {
+                    try { questions = JSON.parse(result.answer); } catch { questions = []; }
+                } else if (result.candidates && result.candidates.length > 0) {
                     let rawText = result.candidates[0].content.parts[0].text;
                     const jsonMatch = rawText.match(/\[.*\]/s);
                     if(jsonMatch) {
@@ -2010,15 +1992,14 @@ ${format ? `Use the ${format} format (Fact, Issue, Reasoning, Conclusion) for yo
             const optimizedOutput = document.getElementById('optimized-prompt-output');
             optimizedOutput.innerHTML = '<em>Optimizing...</em>';
             optimizerModal.classList.remove('hidden');
-            const metaPrompt = `You are a prompt engineering expert. Rewrite the following user query to be more specific, clear, and structured for a legal AI. User Query: "${userInput}" Return only the optimized version.`;
             try {
                 const response = await fetch("https://gemini-backend-612z.onrender.com/api/generate", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: metaPrompt })
+                    body: JSON.stringify({ prompt: userInput, tool: 'optimizer' })
                 });
                 const result = await response.json();
-                const optimizedText = result.candidates[0].content.parts[0].text;
+                const optimizedText = result.answer || (result.candidates && result.candidates[0].content.parts[0].text) || '';
                 optimizedOutput.textContent = optimizedText;
                 document.getElementById('use-optimized-btn').onclick = () => {
                     document.getElementById('ai-query-input').value = optimizedText;
