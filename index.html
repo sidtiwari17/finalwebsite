@@ -1104,6 +1104,10 @@
                                     <button onclick="startNewChat()" class="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors">
                                         <i class="fas fa-plus mr-2"></i>New Chat
                                     </button>
+                                    <!-- Test Privacy Banner Button -->
+                                    <button onclick="showPrivacyBannerManual()" class="px-4 py-2 text-sm bg-yellow-200 hover:bg-yellow-300 dark:bg-yellow-700 dark:hover:bg-yellow-600 text-yellow-700 dark:text-yellow-200 rounded-lg transition-colors">
+                                        <i class="fas fa-shield-alt mr-2"></i>Test Banner
+                                    </button>
                                     <!-- Reasoning Toggle Switch -->
                                     <div class="flex items-center space-x-2">
                                         <div class="relative">
@@ -3175,10 +3179,11 @@
         
         // Show privacy banner on tools page if not closed before
         function checkAndShowPrivacyBanner() {
-            if (window.location.hash === '#tools-page' || document.querySelector('#tools-page:not(.hidden)')) {
-                if (!sessionStorage.getItem('privacy-banner-closed')) {
-                    setTimeout(() => showPrivacyBanner(), 1000);
-                }
+            const toolsPage = document.querySelector('#tools-page:not(.hidden)');
+            const aiAssistantPage = document.querySelector('#ai-assistant-page:not(.hidden)');
+            
+            if ((toolsPage || aiAssistantPage) && !sessionStorage.getItem('privacy-banner-closed')) {
+                setTimeout(() => showPrivacyBanner(), 1000);
             }
         }
         
@@ -3199,6 +3204,20 @@
             }
             setTimeout(() => checkAndShowPrivacyBanner(), 500);
         };
+        
+        // Manual trigger function for testing
+        window.showPrivacyBannerManual = function() {
+            showPrivacyBanner();
+        };
+
+        // Add missing functions
+        
+        // Escape HTML function
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
     </script>
     
     <!-- Privacy & Security Banner -->
