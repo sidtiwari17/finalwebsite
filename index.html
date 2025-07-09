@@ -1588,7 +1588,7 @@
         const BACKEND_URL = 'https://excluziv-backend.onrender.com/api/ask';
 
         // Call AI API for all tasks (reasoning and non-reasoning)
-        async function callGemini25ProAPI(query, enableReasoning = false) {
+        async function ExcluzivAI(query, enableReasoning = false) {
             try {
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
@@ -1659,7 +1659,7 @@
 
             if (useReasoning) {
                 try {
-                    const answer = await callGemini25ProAPI(userQuery, true);
+                    const answer = await ExcluzivAI(userQuery, true);
                     if (loadingIndicator) loadingIndicator.remove();
                     const assistantMessage = { role: 'model', parts: [{ text: answer }] };
                     messages.push(assistantMessage);
@@ -1829,7 +1829,7 @@
         });
 
         // Call AI API for all tasks (reasoning and non-reasoning)
-        async function callGemini25ProAPI(query, enableReasoning = false) {
+        async function ExcluzivAI(query, enableReasoning = false) {
             try {
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
