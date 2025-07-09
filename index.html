@@ -198,7 +198,275 @@
             transform: translateY(0);
         }
         .prose {
-             max-width: 100% !important;
+            max-width: 65ch;
+            color: inherit;
+        }
+        
+        /* Enhanced Chat Interface */
+        .chat-message {
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-message {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .user-bubble {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border-bottom-right-radius: 0.25rem;
+        }
+        
+        .ai-bubble {
+            background: white;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .dark .ai-bubble {
+            background: #374151;
+            color: #f9fafb;
+            border-color: #4b5563;
+        }
+        
+        /* Loading States & Animations */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        .dark .skeleton {
+            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+            background-size: 200% 100%;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Better Mobile Experience */
+        @media (max-width: 768px) {
+            .mobile-optimized {
+                padding: 1rem;
+            }
+            
+            .touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .mobile-text {
+                font-size: 1rem;
+                line-height: 1.5;
+            }
+        }
+        
+        /* Enhanced File Upload Area */
+        .file-drop-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+        
+        .file-drop-zone:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .file-drop-zone.dragover {
+            border-color: #3b82f6;
+            background: #dbeafe;
+            transform: scale(1.02);
+        }
+        
+        .dark .file-drop-zone {
+            border-color: #4b5563;
+            background: #1f2937;
+        }
+        
+        .dark .file-drop-zone:hover {
+            border-color: #60a5fa;
+            background: #1e3a8a;
+        }
+        
+        /* Progress Indicators */
+        .progress-bar {
+            background: #e5e7eb;
+            border-radius: 9999px;
+            height: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Micro-interactions */
+        .micro-interaction {
+            transition: all 0.15s ease;
+        }
+        
+        .micro-interaction:hover {
+            transform: translateY(-2px);
+        }
+        
+        .micro-interaction:active {
+            transform: translateY(0) scale(0.98);
+        }
+        
+        /* Enhanced Tooltips */
+        .tooltip-container {
+            position: relative;
+        }
+        
+        .tooltip-content {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 50;
+        }
+        
+        .tooltip-container:hover .tooltip-content {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #1f2937;
+        }
+        
+        /* Improved Responsive Design */
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 640px) {
+            .responsive-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        /* Error Handling */
+        .error-state {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .dark .error-state {
+            background: #7f1d1d;
+            border-color: #dc2626;
+        }
+        
+        .success-state {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .dark .success-state {
+            background: #14532d;
+            border-color: #16a34a;
+        }
+        
+        /* Search and Filter */
+        .search-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background: white;
+            transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .dark .search-input {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f9fafb;
+        }
+        
+                .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+        
+        .prose img {
+            max-width: 100% !important;
+        }
         }
         .prose pre {
             background-color: #f3f4f6;
@@ -689,6 +957,28 @@
                             Select a tool to get started with our AI Legal Assistant.
                         </p>
                     </div>
+                    
+                    <!-- Enhanced Search and Filter -->
+                    <div class="max-w-2xl mx-auto mb-12">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="tools-search" placeholder="Search legal tools..." class="search-input" onkeyup="filterTools()">
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-2 mt-4" id="tools-filter">
+                            <button onclick="filterByCategory('all')" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-blue-600 text-white micro-interaction">
+                                All Tools
+                            </button>
+                            <button onclick="filterByCategory('analysis')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 micro-interaction">
+                                Analysis
+                            </button>
+                            <button onclick="filterByCategory('drafting')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 micro-interaction">
+                                Drafting
+                            </button>
+                            <button onclick="filterByCategory('research')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 micro-interaction">
+                                Research
+                            </button>
+                        </div>
+                    </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                         <button onclick="selectToolAndNavigate('legalDefinitions', event)" class="ai-tool-btn text-left p-4 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                             <i class="fas fa-gavel text-3xl text-blue-500 mb-3"></i>
@@ -846,15 +1136,25 @@
                             </div>
                             <div class="relative">
                                 <textarea id="ai-query-input" rows="6" class="w-full p-6 pr-28 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 dark:bg-gray-700 text-lg text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500" placeholder="Place Your Query Here (Kuch bura nahi hoga, vishwas karo)"></textarea>
+                                
+                                <!-- Enhanced File Upload Area -->
+                                <div id="file-drop-zone" class="file-drop-zone hidden absolute inset-0 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg border-2 border-dashed border-blue-400">
+                                    <div class="text-center">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-blue-500 mb-4"></i>
+                                        <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Drop files here</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">or click to browse</p>
+                                    </div>
+                                </div>
+                                
                                 <div class="absolute top-1/2 -translate-y-1/2 right-3 flex items-center space-x-2">
-                                    <button id="optimize-prompt-btn" title="Optimize this prompt" class="text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">
+                                    <button id="optimize-prompt-btn" title="Optimize this prompt" class="text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 micro-interaction">
                                         <span class="text-lg">✨</span>
                                     </button>
-                                     <label for="file-upload" class="cursor-pointer text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600" title="Upload files">
+                                     <label for="file-upload" class="cursor-pointer text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 micro-interaction" title="Upload files">
                                         <i class="fas fa-paperclip text-lg"></i>
                                     </label>
                                     <input id="file-upload" type="file" class="hidden" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.bmp">
-                                    <button onclick="generateAiResponse()" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition-all shadow-md hover:shadow-lg transform hover:scale-110">
+                                    <button onclick="generateAiResponse()" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition-all shadow-md hover:shadow-lg transform hover:scale-110 micro-interaction">
                                         <i class="fas fa-arrow-up text-lg"></i>
                                     </button>
                                 </div>
@@ -1878,32 +2178,41 @@
        function appendMessage(content, role) {
             const chatArea = document.getElementById('ai-chat-area');
             const messageDiv = document.createElement('div');
-            const icon = role === 'user' ? 'fas fa-user' : 'fas fa-robot';
-            const bgColor = role === 'user' ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-gray-200 dark:bg-gray-700';
             const messageId = 'msg-' + Date.now();
 
-            messageDiv.className = `p-4 rounded-lg mb-4 ${bgColor}`;
-            let messageContent;
-
-            if (role === 'model') {
-                messageContent = `<div class="flex justify-between items-start">
-                                    <p class="font-semibold mb-2"><i class="${icon} mr-2"></i>AI Assistant</p>
-                                  </div>
-                                  <div id="${messageId}" class="prose dark:prose-invert max-w-none">${formatMarkdown(content)}</div>
-                                  <div class="mt-3 pt-2 border-t border-gray-300 dark:border-gray-600 flex items-center justify-end space-x-4">
-                                      <button onclick="copyMessageContent('${messageId}')" class="text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 text-sm font-medium">
-                                          <i class="fas fa-copy mr-1"></i><span data-lang-key="copy">Copy</span>
-                                      </button>
-                                      <button onclick="redoQuery()" class="text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 text-sm font-medium">
-                                          <i class="fas fa-redo mr-1"></i><span data-lang-key="redo">Redo</span>
-                                      </button>
-                                  </div>`;
+            // Enhanced chat interface with better message bubbles
+            if (role === 'user') {
+                messageDiv.className = 'chat-message user-message';
+                messageDiv.innerHTML = `
+                    <div class="message-bubble user-bubble">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-user mr-2 text-white/80"></i>
+                            <span class="text-sm font-medium text-white/90">You</span>
+                        </div>
+                        <div class="text-white">${escapeHtml(content)}</div>
+                    </div>
+                `;
             } else {
-                messageContent = `<p class="font-semibold mb-2"><i class="${icon} mr-2"></i>You</p>
-                                  <div class="prose dark:prose-invert max-w-none">${formatMarkdown(content)}</div>`;
+                messageDiv.className = 'chat-message ai-message';
+                messageDiv.innerHTML = `
+                    <div class="message-bubble ai-bubble">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-robot mr-2 text-blue-600 dark:text-blue-400"></i>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">AI Assistant</span>
+                        </div>
+                        <div id="${messageId}" class="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">${formatMarkdown(content)}</div>
+                        <div class="mt-3 pt-2 border-t border-gray-200 dark:border-gray-600 flex items-center justify-end space-x-4">
+                            <button onclick="copyMessageContent('${messageId}')" class="micro-interaction text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 text-sm font-medium p-1 rounded">
+                                <i class="fas fa-copy mr-1"></i><span data-lang-key="copy">Copy</span>
+                            </button>
+                            <button onclick="redoQuery()" class="micro-interaction text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 text-sm font-medium p-1 rounded">
+                                <i class="fas fa-redo mr-1"></i><span data-lang-key="redo">Redo</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
             }
             
-            messageDiv.innerHTML = messageContent;
             chatArea.appendChild(messageDiv);
             messageDiv.scrollIntoView({ behavior: "smooth", block: "end" });
             
@@ -1942,6 +2251,140 @@
             getFinalResponse();
         }
 
+        // Enhanced Search and Filter Functions
+        function filterTools() {
+            const searchTerm = document.getElementById('tools-search').value.toLowerCase();
+            const toolButtons = document.querySelectorAll('.ai-tool-btn');
+            
+            toolButtons.forEach(button => {
+                const toolName = button.querySelector('span').textContent.toLowerCase();
+                if (toolName.includes(searchTerm)) {
+                    button.style.display = 'block';
+                    button.classList.add('animate-pulse');
+                    setTimeout(() => button.classList.remove('animate-pulse'), 500);
+                } else {
+                    button.style.display = 'none';
+                }
+            });
+        }
+        
+        function filterByCategory(category) {
+            // Update filter button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            });
+            event.target.classList.add('active', 'bg-blue-600', 'text-white');
+            event.target.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            
+            // Show all tools if 'all' is selected
+            if (category === 'all') {
+                document.querySelectorAll('.ai-tool-btn').forEach(btn => {
+                    btn.style.display = 'block';
+                });
+                return;
+            }
+            
+            // Filter by category (you can add data-category attributes to your tool buttons)
+            const toolCategories = {
+                'analysis': ['caseInsights', 'casePrediction', 'devilsAdvocate', 'regulatoryImpact'],
+                'drafting': ['draftPetition', 'docGenerator', 'explainNotice'],
+                'research': ['legalDefinitions', 'bareAct', 'aiCaseSummary', 'docCompare', 'strategySim', 'stakeholder', 'contractIntel']
+            };
+            
+            const toolsToShow = toolCategories[category] || [];
+            document.querySelectorAll('.ai-tool-btn').forEach(btn => {
+                const toolName = btn.getAttribute('onclick')?.match(/['"]([^'"]+)['"]/)?.[1];
+                if (toolsToShow.includes(toolName)) {
+                    btn.style.display = 'block';
+                    btn.classList.add('animate-pulse');
+                    setTimeout(() => btn.classList.remove('animate-pulse'), 500);
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+        }
+        
+        // Enhanced Error Handling
+        function showError(message, type = 'error') {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = `${type === 'error' ? 'error-state' : 'success-state'}`;
+            errorDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} mr-2 text-${type === 'error' ? 'red' : 'green'}-500"></i>
+                    <span class="text-${type === 'error' ? 'red' : 'green'}-700 dark:text-${type === 'error' ? 'red' : 'green'}-300">${message}</span>
+                </div>
+            `;
+            
+            // Insert at the top of chat area
+            const chatArea = document.getElementById('ai-chat-area');
+            if (chatArea) {
+                chatArea.insertBefore(errorDiv, chatArea.firstChild);
+                setTimeout(() => errorDiv.remove(), 5000);
+            }
+        }
+        
+        // Enhanced Progress Indicators
+        function showProgress(percentage, message = 'Processing...') {
+            const progressDiv = document.createElement('div');
+            progressDiv.className = 'fixed top-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 z-50';
+            progressDiv.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">${message}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(progressDiv);
+            return progressDiv;
+        }
+        
+        // Enhanced Tooltips
+        function addTooltips() {
+            const toolButtons = document.querySelectorAll('.ai-tool-btn');
+            toolButtons.forEach(button => {
+                const toolName = button.querySelector('span').textContent;
+                button.classList.add('tooltip-container');
+                button.setAttribute('title', `Click to use ${toolName}`);
+            });
+        }
+        
+        // Enhanced Mobile Experience
+        function enhanceMobileExperience() {
+            // Add touch feedback
+            const touchElements = document.querySelectorAll('button, .ai-tool-btn');
+            touchElements.forEach(element => {
+                element.classList.add('touch-target', 'micro-interaction');
+            });
+            
+            // Add swipe gestures for mobile
+            let startX = 0;
+            let startY = 0;
+            
+            document.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            });
+            
+            document.addEventListener('touchend', (e) => {
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const diffX = startX - endX;
+                const diffY = startY - endY;
+                
+                // Swipe left to go back
+                if (Math.abs(diffX) > Math.abs(diffY) && diffX > 50) {
+                    // Add back navigation logic here
+                }
+            });
+        }
+        
         // Add missing functions
         window.selectToolAndNavigate = function(tool, event) {
             if (event) event.preventDefault();
@@ -2016,6 +2459,52 @@
             chevron.classList.toggle('fa-chevron-up');
         }
 
+        // Enhanced File Upload with Drag and Drop
+        function setupDragAndDrop() {
+            const textarea = document.getElementById('ai-query-input');
+            const dropZone = document.getElementById('file-drop-zone');
+            
+            if (!textarea || !dropZone) return;
+            
+            // Show drop zone on drag enter
+            textarea.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('hidden');
+                dropZone.classList.add('dragover');
+            });
+            
+            // Hide drop zone on drag leave
+            textarea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                if (!textarea.contains(e.relatedTarget)) {
+                    dropZone.classList.add('hidden');
+                    dropZone.classList.remove('dragover');
+                }
+            });
+            
+            // Handle file drop
+            textarea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('hidden');
+                dropZone.classList.remove('dragover');
+                
+                const files = Array.from(e.dataTransfer.files);
+                if (files.length > 0) {
+                    // Create a fake event to use existing handleFileUpload
+                    const fakeEvent = {
+                        target: { files: files }
+                    };
+                    handleFileUpload(fakeEvent);
+                }
+            });
+            
+            // Prevent default drag behaviors
+            textarea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+        }
+        
+        // Enhanced File Upload with Progress
         async function handleFileUpload(event) {
             const files = Array.from(event.target.files);
             
@@ -2046,7 +2535,7 @@
             
             // Show warnings for invalid files
             if (invalidFiles.length > 0) {
-                showCustomAlert(`Some files were skipped: ${invalidFiles.join(', ')}`);
+                showError(`Some files were skipped: ${invalidFiles.join(', ')}`, 'error');
             }
             
             if (validFiles.length === 0) {
@@ -2056,26 +2545,31 @@
             // Add new files to existing ones
             aiState.files = [...aiState.files, ...validFiles];
             
-            // Show processing indicator
-            const fileDisplayArea = document.getElementById('file-display-area');
-            if (fileDisplayArea) {
-                fileDisplayArea.innerHTML += `
-                    <div class="flex items-center text-blue-600 dark:text-blue-400 mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                        <span class="text-sm">Processing ${validFiles.length} file(s)...</span>
-                    </div>
-                `;
-            }
+            // Show progress indicator
+            const progressBar = showProgress(0, `Processing ${validFiles.length} file(s)...`);
+            let processedCount = 0;
             
-            // Extract text from all files in parallel
+            // Extract text from all files in parallel with progress
             try {
-                window.extractedFileContents = await Promise.all(
-                    aiState.files.map(extractTextFromFile)
-                );
-                showCustomAlert(`${validFiles.length} file(s) uploaded and processed successfully!`);
+                const processPromises = aiState.files.map(async (file, index) => {
+                    const text = await extractTextFromFile(file);
+                    processedCount++;
+                    const percentage = Math.round((processedCount / aiState.files.length) * 100);
+                    if (progressBar) {
+                        progressBar.querySelector('.progress-fill').style.width = `${percentage}%`;
+                        progressBar.querySelector('.text-sm').textContent = `Processing ${processedCount}/${aiState.files.length} files...`;
+                    }
+                    return text;
+                });
+                
+                window.extractedFileContents = await Promise.all(processPromises);
+                
+                if (progressBar) progressBar.remove();
+                showError(`${validFiles.length} file(s) uploaded and processed successfully!`, 'success');
             } catch (error) {
                 console.error('File processing error:', error);
-                showCustomAlert('Some files failed to process. Please try again.');
+                if (progressBar) progressBar.remove();
+                showError('Some files failed to process. Please try again.', 'error');
             }
             
             renderFileList();
@@ -2342,6 +2836,11 @@
             const fileUpload = document.getElementById('file-upload');
             if(fileUpload) fileUpload.addEventListener('change', handleFileUpload);
             
+            // Initialize enhanced features
+            addTooltips();
+            enhanceMobileExperience();
+            setupDragAndDrop();
+            
             // --- Persist Theme ---
             const themeToggle = document.getElementById('dark-mode-toggle');
             const rootEl = document.documentElement;
@@ -2464,6 +2963,143 @@
             return `[[Base64 data]] ${await blobToBase64(file)}`;
         }
 
+        window.clearAllFiles = clearAllFiles;
+        
+        // Enhanced Search and Filter Functions
+        function filterTools() {
+            const searchTerm = document.getElementById('tools-search').value.toLowerCase();
+            const toolButtons = document.querySelectorAll('.ai-tool-btn');
+            
+            toolButtons.forEach(button => {
+                const toolName = button.querySelector('span').textContent.toLowerCase();
+                if (toolName.includes(searchTerm)) {
+                    button.style.display = 'block';
+                    button.classList.add('animate-pulse');
+                    setTimeout(() => button.classList.remove('animate-pulse'), 500);
+                } else {
+                    button.style.display = 'none';
+                }
+            });
+        }
+        
+        function filterByCategory(category) {
+            // Update filter button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            });
+            event.target.classList.add('active', 'bg-blue-600', 'text-white');
+            event.target.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            
+            // Show all tools if 'all' is selected
+            if (category === 'all') {
+                document.querySelectorAll('.ai-tool-btn').forEach(btn => {
+                    btn.style.display = 'block';
+                });
+                return;
+            }
+            
+            // Filter by category
+            const toolCategories = {
+                'analysis': ['caseInsights', 'casePrediction', 'devilsAdvocate', 'regulatoryImpact'],
+                'drafting': ['draftPetition', 'docGenerator', 'explainNotice'],
+                'research': ['legalDefinitions', 'bareAct', 'aiCaseSummary', 'docCompare', 'strategySim', 'stakeholder', 'contractIntel']
+            };
+            
+            const toolsToShow = toolCategories[category] || [];
+            document.querySelectorAll('.ai-tool-btn').forEach(btn => {
+                const toolName = btn.getAttribute('onclick')?.match(/['"]([^'"]+)['"]/)?.[1];
+                if (toolsToShow.includes(toolName)) {
+                    btn.style.display = 'block';
+                    btn.classList.add('animate-pulse');
+                    setTimeout(() => btn.classList.remove('animate-pulse'), 500);
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+        }
+        
+        // Enhanced Error Handling
+        function showError(message, type = 'error') {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = `${type === 'error' ? 'error-state' : 'success-state'}`;
+            errorDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} mr-2 text-${type === 'error' ? 'red' : 'green'}-500"></i>
+                    <span class="text-${type === 'error' ? 'red' : 'green'}-700 dark:text-${type === 'error' ? 'red' : 'green'}-300">${message}</span>
+                </div>
+            `;
+            
+            // Insert at the top of chat area
+            const chatArea = document.getElementById('ai-chat-area');
+            if (chatArea) {
+                chatArea.insertBefore(errorDiv, chatArea.firstChild);
+                setTimeout(() => errorDiv.remove(), 5000);
+            }
+        }
+        
+        // Enhanced Progress Indicators
+        function showProgress(percentage, message = 'Processing...') {
+            const progressDiv = document.createElement('div');
+            progressDiv.className = 'fixed top-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 z-50';
+            progressDiv.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">${message}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(progressDiv);
+            return progressDiv;
+        }
+        
+        // Enhanced Tooltips
+        function addTooltips() {
+            const toolButtons = document.querySelectorAll('.ai-tool-btn');
+            toolButtons.forEach(button => {
+                const toolName = button.querySelector('span').textContent;
+                button.classList.add('tooltip-container');
+                button.setAttribute('title', `Click to use ${toolName}`);
+            });
+        }
+        
+        // Enhanced Mobile Experience
+        function enhanceMobileExperience() {
+            // Add touch feedback
+            const touchElements = document.querySelectorAll('button, .ai-tool-btn');
+            touchElements.forEach(element => {
+                element.classList.add('touch-target', 'micro-interaction');
+            });
+            
+            // Add swipe gestures for mobile
+            let startX = 0;
+            let startY = 0;
+            
+            document.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            });
+            
+            document.addEventListener('touchend', (e) => {
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const diffX = startX - endX;
+                const diffY = startY - endY;
+                
+                // Swipe left to go back
+                if (Math.abs(diffX) > Math.abs(diffY) && diffX > 50) {
+                    // Add back navigation logic here
+                }
+            });
+        }
+        
+        // Add missing functions
     </script>
 </body>
 </html>
