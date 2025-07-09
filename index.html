@@ -465,7 +465,7 @@
         }
         
         .prose img {
-            max-width: 100% !important;
+             max-width: 100% !important;
         }
         }
         .prose pre {
@@ -2242,18 +2242,22 @@
             const messageDiv = document.createElement('div');
             const messageId = 'msg-' + Date.now();
 
-            // Enhanced chat interface with better message bubbles
             if (role === 'user') {
                 messageDiv.className = 'chat-message user-message';
-                messageDiv.innerHTML = `
-                    <div class="message-bubble user-bubble">
-                        <div class="flex items-center mb-2">
-                            <i class="fas fa-user mr-2 text-white/80"></i>
-                            <span class="text-sm font-medium text-white/90">You</span>
-                        </div>
-                        <div class="text-white">${escapeHtml(content)}</div>
-                    </div>
-                `;
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble user-bubble';
+
+                const header = document.createElement('div');
+                header.className = 'flex items-center mb-2';
+                header.innerHTML = `<i class="fas fa-user mr-2 text-white/80"></i><span class="text-sm font-medium text-white/90">You</span>`;
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'text-white';
+                textDiv.textContent = content; // Safe escaping
+
+                bubble.appendChild(header);
+                bubble.appendChild(textDiv);
+                messageDiv.appendChild(bubble);
             } else {
                 messageDiv.className = 'chat-message ai-message';
                 messageDiv.innerHTML = `
@@ -2265,23 +2269,23 @@
                         <div id="${messageId}" class="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">${formatMarkdown(content)}</div>
                         <div class="mt-3 pt-2 border-t border-gray-200 dark:border-gray-600 flex items-center justify-end space-x-4">
                             <button onclick="copyMessageContent('${messageId}')" class="micro-interaction text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 text-sm font-medium p-1 rounded">
-                                <i class="fas fa-copy mr-1"></i><span data-lang-key="copy">Copy</span>
-                            </button>
+                                          <i class="fas fa-copy mr-1"></i><span data-lang-key="copy">Copy</span>
+                                      </button>
                             <button onclick="redoQuery()" class="micro-interaction text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 text-sm font-medium p-1 rounded">
-                                <i class="fas fa-redo mr-1"></i><span data-lang-key="redo">Redo</span>
-                            </button>
+                                          <i class="fas fa-redo mr-1"></i><span data-lang-key="redo">Redo</span>
+                                      </button>
                         </div>
                     </div>
                 `;
             }
-            
+
             chatArea.appendChild(messageDiv);
             messageDiv.scrollIntoView({ behavior: "smooth", block: "end" });
-            
+
             // Translate the dynamically added buttons inside the new message
             messageDiv.querySelectorAll('[data-lang-key]').forEach(el => {
                 const key = el.getAttribute('data-lang-key');
-                 if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                if (translations[currentLanguage] && translations[currentLanguage][key]) {
                     el.innerText = translations[currentLanguage][key];
                 }
             });
@@ -2446,7 +2450,7 @@
                 }
             });
         }
-        
+
         // Add missing functions
         window.selectToolAndNavigate = function(tool, event) {
             if (event) event.preventDefault();
