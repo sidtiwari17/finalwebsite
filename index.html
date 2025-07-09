@@ -850,16 +850,20 @@
                                     <button id="optimize-prompt-btn" title="Optimize this prompt" class="text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">
                                         <span class="text-lg">✨</span>
                                     </button>
-                                     <label for="file-upload" class="cursor-pointer text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">
+                                     <label for="file-upload" class="cursor-pointer text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600" title="Upload files">
                                         <i class="fas fa-paperclip text-lg"></i>
                                     </label>
-                                    <input id="file-upload" type="file" class="hidden" multiple>
+                                    <input id="file-upload" type="file" class="hidden" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.bmp">
                                     <button onclick="generateAiResponse()" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition-all shadow-md hover:shadow-lg transform hover:scale-110">
                                         <i class="fas fa-arrow-up text-lg"></i>
                                     </button>
                                 </div>
                             </div>
                             <div id="file-display-area" class="mt-3"></div>
+                            <div id="file-upload-info" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Supported: PDF, DOCX, TXT, Images (max 10MB each)
+                            </div>
                         </div>
                     </div>
 
@@ -2013,12 +2017,71 @@
         }
 
         async function handleFileUpload(event) {
-            aiState.files = Array.from(event.target.files);
-            // Extract text from all files in parallel, but do not show to user
-            window.extractedFileContents = await Promise.all(
-                aiState.files.map(extractTextFromFile)
-            );
+            const files = Array.from(event.target.files);
+            
+            // Validate file types and sizes
+            const validFiles = [];
+            const invalidFiles = [];
+            
+            files.forEach(file => {
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                const allowedTypes = [
+                    'application/pdf',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'image/jpeg',
+                    'image/png',
+                    'image/gif',
+                    'image/bmp',
+                    'text/plain'
+                ];
+                
+                if (file.size > maxSize) {
+                    invalidFiles.push(`${file.name} (too large - max 10MB)`);
+                } else if (!allowedTypes.includes(file.type)) {
+                    invalidFiles.push(`${file.name} (unsupported file type)`);
+                } else {
+                    validFiles.push(file);
+                }
+            });
+            
+            // Show warnings for invalid files
+            if (invalidFiles.length > 0) {
+                showCustomAlert(`Some files were skipped: ${invalidFiles.join(', ')}`);
+            }
+            
+            if (validFiles.length === 0) {
+                return;
+            }
+            
+            // Add new files to existing ones
+            aiState.files = [...aiState.files, ...validFiles];
+            
+            // Show processing indicator
+            const fileDisplayArea = document.getElementById('file-display-area');
+            if (fileDisplayArea) {
+                fileDisplayArea.innerHTML += `
+                    <div class="flex items-center text-blue-600 dark:text-blue-400 mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                        <span class="text-sm">Processing ${validFiles.length} file(s)...</span>
+                    </div>
+                `;
+            }
+            
+            // Extract text from all files in parallel
+            try {
+                window.extractedFileContents = await Promise.all(
+                    aiState.files.map(extractTextFromFile)
+                );
+                showCustomAlert(`${validFiles.length} file(s) uploaded and processed successfully!`);
+            } catch (error) {
+                console.error('File processing error:', error);
+                showCustomAlert('Some files failed to process. Please try again.');
+            }
+            
             renderFileList();
+            
+            // Clear the input for future uploads
+            event.target.value = '';
         }
         
         function removeFile(index) {
@@ -2031,28 +2094,129 @@
             const fileDisplayArea = document.getElementById('file-display-area');
             if(!fileDisplayArea) return;
             fileDisplayArea.innerHTML = '';
+            
+            // Show file count header
+            if (aiState.files.length > 0) {
+                fileDisplayArea.innerHTML = `
+                    <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg mb-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-folder-open text-blue-600 dark:text-blue-400 mr-2"></i>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Uploaded Files (${aiState.files.length})</span>
+                            </div>
+                            <button onclick="clearAllFiles()" class="text-red-500 hover:text-red-700 text-sm font-medium">
+                                <i class="fas fa-trash mr-1"></i>Clear All
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Render each file with enhanced info
             aiState.files.forEach((file, index) => {
-                fileDisplayArea.innerHTML += `<div class="flex items-center justify-between bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg text-sm mt-2"><span class="truncate"><i class="fas fa-file-alt mr-2"></i>${file.name}</span><button onclick="removeFile(${index})" class="text-red-500 ml-2"><i class="fas fa-times-circle"></i></button></div>`;
+                const fileSize = (file.size / 1024).toFixed(1);
+                const fileIcon = getFileIcon(file.name);
+                const fileType = getFileType(file.name);
+                
+                fileDisplayArea.innerHTML += `
+                    <div class="flex items-center justify-between bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-3 rounded-lg text-sm mb-2 hover:shadow-md transition-shadow">
+                        <div class="flex items-center flex-1 min-w-0">
+                            <div class="flex-shrink-0 mr-3">
+                                <i class="${fileIcon} text-lg ${getFileColor(fileType)}"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium text-gray-900 dark:text-white truncate" title="${file.name}">
+                                    ${file.name}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    ${fileType} • ${fileSize} KB
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center ml-3">
+                            <span class="text-xs text-green-600 dark:text-green-400 mr-2">
+                                <i class="fas fa-check-circle"></i> Ready
+                            </span>
+                            <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20" title="Remove file">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
             });
+            
             // Doc Compare mode: show warning/info if less than 2 files, checkmark if 2+
             if (aiState.tool === 'docCompare') {
                 const submitBtn = document.querySelector('#ai-assistant-page button[onclick*="generateAiResponse"]');
                 let infoHtml = '';
                 if (aiState.files.length < 2) {
                     if (submitBtn) submitBtn.disabled = true;
-                    infoHtml = `<div class="flex items-center text-red-500 mt-2">
-                        <span class="mr-2"><i class="fas fa-info-circle" title="You must upload at least two files to enable document comparison."></i></span>
-                        Please upload at least two files for document comparison.
-                    </div>`;
+                    infoHtml = `
+                        <div class="flex items-center text-amber-600 dark:text-amber-400 mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <span class="text-sm">Please upload at least two files for document comparison.</span>
+                        </div>
+                    `;
                 } else {
                     if (submitBtn) submitBtn.disabled = false;
-                    infoHtml = `<div class="flex items-center text-green-600 mt-2">
-                        <span class="mr-2"><i class="fas fa-check-circle"></i></span>
-                        Ready for comparison!
-                    </div>`;
+                    infoHtml = `
+                        <div class="flex items-center text-green-600 dark:text-green-400 mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <span class="text-sm font-medium">Ready for document comparison!</span>
+                        </div>
+                    `;
                 }
                 fileDisplayArea.innerHTML += infoHtml;
             }
+            
+            // Show general file upload info
+            if (aiState.files.length > 0 && aiState.tool !== 'docCompare') {
+                fileDisplayArea.innerHTML += `
+                    <div class="flex items-center text-blue-600 dark:text-blue-400 mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span class="text-sm">Files will be processed and included in your AI query.</span>
+                    </div>
+                `;
+            }
+        }
+        
+        function getFileIcon(filename) {
+            const ext = filename.toLowerCase().split('.').pop();
+            switch(ext) {
+                case 'pdf': return 'fas fa-file-pdf';
+                case 'doc': case 'docx': return 'fas fa-file-word';
+                case 'txt': return 'fas fa-file-alt';
+                case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': return 'fas fa-file-image';
+                default: return 'fas fa-file';
+            }
+        }
+        
+        function getFileType(filename) {
+            const ext = filename.toLowerCase().split('.').pop();
+            switch(ext) {
+                case 'pdf': return 'PDF Document';
+                case 'doc': case 'docx': return 'Word Document';
+                case 'txt': return 'Text File';
+                case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': return 'Image File';
+                default: return 'File';
+            }
+        }
+        
+        function getFileColor(fileType) {
+            switch(fileType) {
+                case 'PDF Document': return 'text-red-500';
+                case 'Word Document': return 'text-blue-500';
+                case 'Text File': return 'text-gray-500';
+                case 'Image File': return 'text-green-500';
+                default: return 'text-gray-400';
+            }
+        }
+        
+        function clearAllFiles() {
+            aiState.files = [];
+            if (window.extractedFileContents) window.extractedFileContents = [];
+            renderFileList();
+            showCustomAlert('All files cleared successfully.');
         }
         window.removeFile = removeFile;
         
