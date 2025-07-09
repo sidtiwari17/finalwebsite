@@ -1104,6 +1104,10 @@
                                     <button onclick="startNewChat()" class="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors">
                                         <i class="fas fa-plus mr-2"></i>New Chat
                                     </button>
+                                    <!-- Test Privacy Banner Button -->
+                                    <button onclick="showPrivacyBannerManual()" class="px-4 py-2 text-sm bg-yellow-200 hover:bg-yellow-300 dark:bg-yellow-700 dark:hover:bg-yellow-600 text-yellow-700 dark:text-yellow-200 rounded-lg transition-colors">
+                                        <i class="fas fa-shield-alt mr-2"></i>Test Banner
+                                    </button>
                                     <!-- Reasoning Toggle Switch -->
                                     <div class="flex items-center space-x-2">
                                         <div class="relative">
@@ -1567,6 +1571,57 @@
         </div>
     </div>
 
+    <!-- Privacy & Security Banner -->
+    <div id="privacy-banner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md mx-4 p-6 relative">
+            <!-- Close Button -->
+            <button onclick="closePrivacyBanner()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
+            <!-- Banner Content -->
+            <div class="text-center">
+                <div class="mb-4">
+                    <i class="fas fa-shield-alt text-4xl text-blue-500 mb-3"></i>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Privacy & Security Notice</h3>
+                </div>
+                
+                <div class="text-left space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>No File Storage:</strong> We do not store your files on our servers. All processing happens temporarily and files are deleted immediately.</span>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>No Cookies:</strong> We don't use cookies to track your activity. Your privacy is our priority.</span>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>Completely Free:</strong> Excluziv is absolutely free. Beware of anyone claiming to offer premium versions - they are not affiliated with us.</span>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>Single Employee:</strong> I, Siddhant Tiwari, am the only employee. No one else represents Excluziv.</span>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>Email Only:</strong> We only store your email address when you log in through Gmail, nothing else.</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <button onclick="closePrivacyBanner()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors micro-interaction">
+                        I Understand
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- Blog Post Data ---
         const blogPosts = [
@@ -1619,6 +1674,13 @@
                 category: "Future of Law",
             }
         ];
+
+        // Escape HTML function - moved to top for scope access
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         // --- Translations ---
          const translations = {
@@ -2910,6 +2972,9 @@
                 optimizeBtn.addEventListener('click', optimizePrompt);
             }
 
+            // Initialize privacy banner
+            checkAndShowPrivacyBanner();
+
         });
 
         // ===== File-to-Text Extraction Helpers =====
@@ -3100,6 +3165,110 @@
         }
         
         // Add missing functions
+        
+        // Privacy Banner Functions
+        function showPrivacyBanner() {
+            const banner = document.getElementById('privacy-banner');
+            if (banner) {
+                banner.style.display = 'flex';
+                banner.classList.add('animate-fadeIn');
+            }
+        }
+        
+        function closePrivacyBanner() {
+            const banner = document.getElementById('privacy-banner');
+            if (banner) {
+                banner.style.display = 'none';
+                // Store in session storage so it doesn't show again in this session
+                sessionStorage.setItem('privacy-banner-closed', 'true');
+            }
+        }
+        
+        // Show privacy banner on tools page if not closed before
+        function checkAndShowPrivacyBanner() {
+            const toolsPage = document.querySelector('#tools-page:not(.hidden)');
+            const aiAssistantPage = document.querySelector('#ai-assistant-page:not(.hidden)');
+            
+            if ((toolsPage || aiAssistantPage) && !sessionStorage.getItem('privacy-banner-closed')) {
+                setTimeout(() => showPrivacyBanner(), 1000);
+            }
+        }
+        
+        // Enhanced page navigation to show banner
+        const originalShowPage = window.showPage;
+        window.showPage = function(pageId) {
+            originalShowPage(pageId);
+            if (pageId === 'tools-page') {
+                setTimeout(() => checkAndShowPrivacyBanner(), 500);
+            }
+        };
+        
+        // Also trigger for AI Assistant page
+        const originalShowAiAssistantPage = window.showAiAssistantPage;
+        window.showAiAssistantPage = function(event) {
+            if (originalShowAiAssistantPage) {
+                originalShowAiAssistantPage(event);
+            }
+            setTimeout(() => checkAndShowPrivacyBanner(), 500);
+        };
+        
+        // Manual trigger function for testing
+        window.showPrivacyBannerManual = function() {
+            showPrivacyBanner();
+        };
+
+        // Add missing functions
     </script>
+    
+    <!-- Privacy & Security Banner -->
+    <div id="privacy-banner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md mx-4 p-6 relative">
+            <!-- Close Button -->
+            <button onclick="closePrivacyBanner()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
+            <!-- Banner Content -->
+            <div class="text-center">
+                <div class="mb-4">
+                    <i class="fas fa-shield-alt text-4xl text-blue-500 mb-3"></i>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Privacy & Security Notice</h3>
+                </div>
+                
+                <div class="text-left space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>No File Storage:</strong> We do not store your files on our servers. All processing happens temporarily and files are deleted immediately.</span>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>No Cookies:</strong> We don't use cookies to track your activity. Your privacy is our priority.</span>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>Completely Free:</strong> Excluziv is absolutely free. Beware of anyone claiming to offer premium versions - they are not affiliated with us.</span>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>Single Employee:</strong> I, Siddhant Tiwari, am the only employee. No one else represents Excluziv.</span>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span><strong>Email Only:</strong> We only store your email address when you log in through Gmail, nothing else.</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <button onclick="closePrivacyBanner()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors micro-interaction">
+                        I Understand
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
