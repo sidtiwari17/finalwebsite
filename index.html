@@ -1584,10 +1584,13 @@
         // After lastAiAnswer variable, add variable for last user query
         let lastUserQuery = '';
 
+        // Backend endpoint
+        const BACKEND_URL = 'https://excluziv-backend.onrender.com/api/ask';
+
         // Call AI API for all tasks (reasoning and non-reasoning)
         async function callGemini25ProAPI(query, enableReasoning = false) {
             try {
-                const response = await fetch("https://gemini-backend-612z.onrender.com/api/ask", {
+                const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1664,6 +1667,7 @@
                     generateFollowUpQuestions(userQuery, answer);
                     // Store answer for next follow-up
                     lastAiAnswer = answer;
+                    lastUserQuery = aiState.query;
                 } catch (error) {
                     if (loadingIndicator) loadingIndicator.remove();
                     appendMessage(`<p class='text-red-500'>AI reasoning error: ${error.message}</p>`, 'model');
@@ -1677,7 +1681,7 @@
         async function getFinalResponse(loadingIndicator) {
             try {
                 const contextPayload = lastAiAnswer ? `Previous user query: ${lastUserQuery}\nAI answer: ${lastAiAnswer}` : '';
-                const response = await fetch("https://gemini-backend-612z.onrender.com/api/ask", {
+                const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: aiState.query, tool: aiState.tool, context: contextPayload })
@@ -1693,6 +1697,8 @@
                 messages.push(assistantMessage);
                 appendMessage(text, 'model');
                 generateFollowUpQuestions(aiState.query, text);
+                lastAiAnswer = text;
+                lastUserQuery = aiState.query;
             } catch (error) {
                 console.error("API call failed:", error);
                 if (loadingIndicator) loadingIndicator.remove();
@@ -1704,7 +1710,7 @@
             const followUpContainer = document.getElementById('follow-up-questions');
             followUpContainer.innerHTML = '';
             try {
-                const response = await fetch("https://gemini-backend-612z.onrender.com/api/ask", {
+                const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: `Based on the user's query \"${originalQuery}\" and the AI response \"${responseText}\", generate three concise, relevant follow-up questions the user might have. Return the questions as a JSON array of strings, like ["question 1", "question 2", "question 3"].`, tool: 'followup' })
@@ -1825,7 +1831,7 @@
         // Call AI API for all tasks (reasoning and non-reasoning)
         async function callGemini25ProAPI(query, enableReasoning = false) {
             try {
-                const response = await fetch("https://gemini-backend-612z.onrender.com/api/ask", {
+                const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1967,7 +1973,7 @@
             optimizedOutput.innerHTML = '<em>Optimizing...</em>';
             optimizerModal.classList.remove('hidden');
             try {
-                const response = await fetch("https://gemini-backend-612z.onrender.com/api/ask", {
+                const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: userInput, tool: 'optimizer' })
