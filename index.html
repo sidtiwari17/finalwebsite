@@ -1579,6 +1579,9 @@
             files: []
         };
 
+        // Add variable to store the last AI response for follow-up context
+        let lastAiAnswer = '';
+
         // Call AI API for all tasks (reasoning and non-reasoning)
         async function callGemini25ProAPI(query, enableReasoning = false) {
             try {
@@ -1656,6 +1659,8 @@
                     messages.push(assistantMessage);
                     appendMessage(answer, 'model');
                     generateFollowUpQuestions(userQuery, answer);
+                    // Store answer for next follow-up
+                    lastAiAnswer = answer;
                 } catch (error) {
                     if (loadingIndicator) loadingIndicator.remove();
                     appendMessage(`<p class='text-red-500'>AI reasoning error: ${error.message}</p>`, 'model');
@@ -1671,7 +1676,7 @@
                 const response = await fetch("https://gemini-backend-612z.onrender.com/api/ask", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: aiState.query, tool: aiState.tool })
+                    body: JSON.stringify({ prompt: aiState.query, tool: aiState.tool, context: lastAiAnswer })
                 });
                 if (!response.ok) throw new Error(`API Error: ${response.status}`);
                 const result = await response.json();
@@ -1787,6 +1792,7 @@
         // Add "New Chat" functionality
         function startNewChat() {
             messages = [];
+            lastAiAnswer = '';
             initializeConversation();
             document.getElementById('ai-chat-area').innerHTML = '';
             document.getElementById('follow-up-questions').innerHTML = '';
