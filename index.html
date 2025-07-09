@@ -1581,6 +1581,8 @@
 
         // Add variable to store the last AI response for follow-up context
         let lastAiAnswer = '';
+        // After lastAiAnswer variable, add variable for last user query
+        let lastUserQuery = '';
 
         // Call AI API for all tasks (reasoning and non-reasoning)
         async function callGemini25ProAPI(query, enableReasoning = false) {
@@ -1614,6 +1616,7 @@
             const userQuery = followUpQuery || queryInput.value.trim();
             // Ensure the backend receives the actual query
             aiState.query = userQuery;
+            lastUserQuery = userQuery; // store user query for context
             if (!userQuery && !aiState.files.length) {
                 showCustomAlert('Please enter a query or upload a file.');
                 return;
@@ -1673,10 +1676,11 @@
         
         async function getFinalResponse(loadingIndicator) {
             try {
+                const contextPayload = lastAiAnswer ? `Previous user query: ${lastUserQuery}\nAI answer: ${lastAiAnswer}` : '';
                 const response = await fetch("https://gemini-backend-612z.onrender.com/api/ask", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: aiState.query, tool: aiState.tool, context: lastAiAnswer })
+                    body: JSON.stringify({ prompt: aiState.query, tool: aiState.tool, context: contextPayload })
                 });
                 if (!response.ok) throw new Error(`API Error: ${response.status}`);
                 const result = await response.json();
